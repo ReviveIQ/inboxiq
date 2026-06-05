@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "lib": ["ES2020", "DOM"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "outDir": "dist",
+    "rootDir": ".",
+    "paths": { "@/*": ["./client/src/*"] }
+  },
+  "include": ["server/**/*", "client/src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
