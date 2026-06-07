@@ -3,7 +3,7 @@
  * Scopes: gmail.readonly + gmail.labels + gmail.modify
  * Tokens encrypted with AES-256-GCM before TiDB storage
  */
-import { encryptToken, decryptToken } from "../_core/db";
+import { encryptToken, decryptToken } from "./_core/db";
 
 const GMAIL_SCOPES = [
   "https://www.googleapis.com/auth/gmail.readonly",

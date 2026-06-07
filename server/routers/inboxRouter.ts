@@ -1,10 +1,10 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../_core/db";
-import { inboxes, opportunities, scans } from "../drizzle/schema";
+import { inboxes, opportunities, scans } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
-import { scanInbox } from "../scanner";
+import { scanInbox } from "../../scanner";
 import type { Express, Request, Response } from "express";
 
 // ── tRPC router ───────────────────────────────────────────────────────────────
@@ -133,11 +133,11 @@ export function registerOAuthRoutes(app: Express) {
   app.get("/api/oauth/gmail/start", async (req: Request, res: Response) => {
     try {
       const token = (req.headers.authorization || "").replace("Bearer ", "");
-      const { verifyToken } = await import("../_core/db");
+      const { verifyToken } = await import("../../_core/db");
       const user = await verifyToken(token);
       if (!user) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-      const { getGmailAuthUrl } = await import("../gmail");
+      const { getGmailAuthUrl } = await import("../../gmail");
       const url = getGmailAuthUrl(user.userId);
       res.json({ url });
     } catch (err: any) {
@@ -151,7 +151,7 @@ export function registerOAuthRoutes(app: Express) {
       const { code, state: userId } = req.query as { code: string; state: string };
       if (!code || !userId) { res.redirect("/?error=oauth_failed"); return; }
 
-      const { exchangeGmailCode } = await import("../gmail");
+      const { exchangeGmailCode } = await import("../../gmail");
       const tokens = await exchangeGmailCode(code);
 
       const db = await getDb();
@@ -204,11 +204,11 @@ export function registerOAuthRoutes(app: Express) {
   app.get("/api/oauth/outlook/start", async (req: Request, res: Response) => {
     try {
       const token = (req.headers.authorization || "").replace("Bearer ", "");
-      const { verifyToken } = await import("../_core/db");
+      const { verifyToken } = await import("../../_core/db");
       const user = await verifyToken(token);
       if (!user) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-      const { getOutlookAuthUrl } = await import("../outlook");
+      const { getOutlookAuthUrl } = await import("../../outlook");
       const url = getOutlookAuthUrl(user.userId);
       res.json({ url });
     } catch (err: any) {
@@ -222,7 +222,7 @@ export function registerOAuthRoutes(app: Express) {
       const { code, state: userId } = req.query as { code: string; state: string };
       if (!code || !userId) { res.redirect("/?error=oauth_failed"); return; }
 
-      const { exchangeOutlookCode } = await import("../outlook");
+      const { exchangeOutlookCode } = await import("../../outlook");
       const tokens = await exchangeOutlookCode(code);
 
       const db = await getDb();

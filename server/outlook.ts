@@ -3,7 +3,7 @@
  * Uses Microsoft Identity Platform (MSAL-compatible manual flow)
  * Scopes: Mail.Read, Mail.ReadWrite, User.Read
  */
-import { encryptToken, decryptToken } from "../_core/db";
+import { encryptToken, decryptToken } from "./_core/db";
 
 const OUTLOOK_SCOPES = [
   "https://graph.microsoft.com/Mail.Read",

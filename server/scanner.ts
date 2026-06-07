@@ -3,12 +3,12 @@
  * Orchestrates: fetch threads → filter → classify → store opportunities
  * Runs on: initial connect (24-month history) + incremental (every 4h) + manual "Scan Now"
  */
-import { getDb, decryptToken } from "../_core/db";
-import { inboxes, opportunities, scans } from "../drizzle/schema";
+import { getDb, decryptToken } from "./_core/db";
+import { inboxes, opportunities, scans } from "./drizzle/schema";
 import { eq, and } from "drizzle-orm";
-import { getGmailThreads, getGmailThread, parseGmailThread, refreshGmailToken } from "../gmail";
-import { getOutlookMessages, parseOutlookMessage, refreshOutlookToken } from "../outlook";
-import { classifyThreadBatch, isWorthClassifying } from "../classifier";
+import { getGmailThreads, getGmailThread, parseGmailThread, refreshGmailToken } from "./gmail";
+import { getOutlookMessages, parseOutlookMessage, refreshOutlookToken } from "./outlook";
+import { classifyThreadBatch, isWorthClassifying } from "./classifier";
 
 const MONTHS_BACK = 24;
 const MAX_THREADS_PER_SCAN = 1000;
