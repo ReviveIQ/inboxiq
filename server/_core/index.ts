@@ -23,13 +23,18 @@ registerOAuthRoutes(app);
 // ── Health check ──────────────────────────────────────────────────────────────
 app.get("/api/health", (_req, res) => res.json({ ok: true, product: "InboxIQ", ts: new Date().toISOString() }));
 
-// ── Legal pages ───────────────────────────────────────────────────────────────
+// ── Static assets + pages ─────────────────────────────────────────────────────
+const staticPath = path.join(__dirname, "../../dist/public");
+app.use(express.static(staticPath));
+
+// Legal pages
 app.get("/privacy", (_req, res) => res.sendFile(path.join(staticPath, "privacy.html")));
 app.get("/terms", (_req, res) => res.sendFile(path.join(staticPath, "terms.html")));
 
-// ── Static frontend ───────────────────────────────────────────────────────────
-const staticPath = path.join(__dirname, "../../dist/public");
-app.use(express.static(staticPath));
+// Public landing page at root — no auth required (required for Google OAuth verification)
+app.get("/", (_req, res) => res.sendFile(path.join(staticPath, "landing.html")));
+
+// React app for /login, /register, and all app routes
 app.get("*", (_req, res) => res.sendFile(path.join(staticPath, "index.html")));
 
 // ── Incremental scan cron (every 4 hours) ─────────────────────────────────────
