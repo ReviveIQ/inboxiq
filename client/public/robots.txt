@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /trpc/
+
+Sitemap: https://inboxiq.reviveiqi.com/sitemap.xml
