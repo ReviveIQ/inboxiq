@@ -23,6 +23,10 @@ registerOAuthRoutes(app);
 // ── Health check ──────────────────────────────────────────────────────────────
 app.get("/api/health", (_req, res) => res.json({ ok: true, product: "InboxIQ", ts: new Date().toISOString() }));
 
+// ── Legal pages ───────────────────────────────────────────────────────────────
+app.get("/privacy", (_req, res) => res.sendFile(path.join(staticPath, "privacy.html")));
+app.get("/terms", (_req, res) => res.sendFile(path.join(staticPath, "terms.html")));
+
 // ── Static frontend ───────────────────────────────────────────────────────────
 const staticPath = path.join(__dirname, "../../dist/public");
 app.use(express.static(staticPath));

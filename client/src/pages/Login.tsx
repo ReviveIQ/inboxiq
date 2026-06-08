@@ -43,6 +43,11 @@ export default function Login() {
           <p style={{ textAlign: "center", marginTop: "20px", fontSize: "13px", color: "#64748b" }}>
             No account? <Link to="/register" style={{ color: "#60a5fa" }}>Create one</Link>
           </p>
+          <p style={{ textAlign: "center", marginTop: "12px", fontSize: "11px", color: "#334155" }}>
+            <a href="/privacy" style={{ color: "#475569", textDecoration: "none" }}>Privacy Policy</a>
+            {" · "}
+            <a href="/terms" style={{ color: "#475569", textDecoration: "none" }}>Terms of Service</a>
+          </p>
         </form>
       </div>
     </div>

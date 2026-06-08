@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Privacy Policy — InboxIQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#080f1e;color:#e2e8f0;font-family:'DM Sans',sans-serif;font-weight:400;line-height:1.7;padding:0}
+header{border-bottom:1px solid rgba(255,255,255,0.08);padding:18px 32px;display:flex;align-items:center;gap:10px;background:rgba(8,15,30,0.96)}
+.wordmark{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:white;text-decoration:none;letter-spacing:-0.02em}
+.wordmark span{color:#60a5fa}
+.container{max-width:720px;margin:0 auto;padding:56px 32px 80px}
+h1{font-family:'Syne',sans-serif;font-weight:800;font-size:32px;color:white;letter-spacing:-0.02em;margin-bottom:8px}
+.meta{font-size:13px;color:#64748b;margin-bottom:48px}
+h2{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:white;margin:40px 0 12px;letter-spacing:-0.01em}
+p{color:#94a3b8;font-size:15px;margin-bottom:16px;line-height:1.75}
+ul{color:#94a3b8;font-size:15px;margin:0 0 16px 20px;line-height:1.75}
+li{margin-bottom:8px}
+strong{color:#e2e8f0;font-weight:500}
+a{color:#60a5fa;text-decoration:none}
+a:hover{text-decoration:underline}
+.highlight{background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);border-radius:10px;padding:16px 20px;margin:20px 0}
+.highlight p{margin:0;color:#93c5fd;font-size:14px}
+hr{border:none;border-top:1px solid rgba(255,255,255,0.06);margin:40px 0}
+footer{text-align:center;padding:32px;border-top:1px solid rgba(255,255,255,0.06);font-size:13px;color:#475569}
+</style>
+</head>
+<body>
+<header>
+  <svg width="24" height="24" viewBox="0 0 72 72" fill="none">
+    <defs>
+      <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#2563eb"/></linearGradient>
+      <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#93c5fd"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient>
+      <linearGradient id="g3" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#1d4ed8"/><stop offset="100%" stop-color="#1e3a5f"/></linearGradient>
+    </defs>
+    <polygon points="36,4 68,36 36,68 4,36" fill="url(#g3)" opacity="0.35"/>
+    <polygon points="36,4 20,20 36,36 52,20" fill="url(#g2)" opacity="0.9"/>
+    <polygon points="36,4 52,20 68,36 36,36" fill="url(#g1)" opacity="0.65"/>
+    <polygon points="4,36 20,20 36,36 20,52" fill="url(#g1)" opacity="0.5"/>
+    <polygon points="68,36 52,20 36,36 52,52" fill="url(#g2)" opacity="0.75"/>
+    <polygon points="36,68 20,52 36,36 52,52" fill="url(#g3)" opacity="0.95"/>
+    <circle cx="36" cy="36" r="6" fill="white" opacity="0.95"/>
+    <circle cx="36" cy="36" r="3" fill="#93c5fd"/>
+  </svg>
+  <a href="/" class="wordmark">Inbox<span>IQ</span></a>
+</header>
+
+<div class="container">
+  <h1>Privacy Policy</h1>
+  <p class="meta">Last updated: June 7, 2026 &nbsp;·&nbsp; InboxIQ by ReviveIQI</p>
+
+  <div class="highlight">
+    <p><strong>The short version:</strong> We connect to your email inbox to surface revenue opportunities. We never sell your data, never read your email content beyond what's needed to classify opportunities, and you can disconnect and delete everything at any time.</p>
+  </div>
+
+  <h2>1. Who we are</h2>
+  <p>InboxIQ is a product of ReviveIQI, operated by Bryan Michael Greer, Fort Lauderdale, Florida, United States. Contact us at <a href="mailto:privacy@reviveiqi.com">privacy@reviveiqi.com</a>.</p>
+
+  <h2>2. What data we collect</h2>
+
+  <p><strong>Account information</strong></p>
+  <ul>
+    <li>Name and email address (provided at registration)</li>
+    <li>Password (stored as a bcrypt hash — we never store your plaintext password)</li>
+    <li>Plan and subscription status</li>
+  </ul>
+
+  <p><strong>Email inbox data (when you connect Gmail or Outlook)</strong></p>
+  <ul>
+    <li>OAuth access and refresh tokens — encrypted with AES-256-GCM before storage</li>
+    <li>Email thread metadata: sender name, sender email address, subject line, date, and message snippet</li>
+    <li>We do <strong>not</strong> store the full body of your emails</li>
+    <li>We do <strong>not</strong> store attachments</li>
+    <li>We do <strong>not</strong> read emails in categories like promotions, social, spam, or trash</li>
+  </ul>
+
+  <p><strong>Opportunity data</strong></p>
+  <ul>
+    <li>Contact names, email addresses, and companies extracted from thread metadata</li>
+    <li>AI-generated opportunity classifications, scores, summaries, and recommended next actions</li>
+    <li>Status updates you make (Active, Waiting, Closed Won, etc.)</li>
+  </ul>
+
+  <p><strong>Usage data</strong></p>
+  <ul>
+    <li>Standard server logs (IP address, request timestamps, response codes)</li>
+    <li>Logs are retained for 30 days and then deleted</li>
+  </ul>
+
+  <h2>3. How we use your data</h2>
+  <ul>
+    <li>To scan your connected inboxes for revenue opportunities on your behalf</li>
+    <li>To classify email threads using AI and surface actionable follow-ups</li>
+    <li>To display your opportunity board and team workspace</li>
+    <li>To send you weekly digest emails (if enabled)</li>
+    <li>To process payments and manage your subscription</li>
+    <li>To send transactional emails (receipts, alerts, account notifications)</li>
+  </ul>
+
+  <h2>4. How we use Gmail and Outlook data</h2>
+  <p>InboxIQ's use and transfer of information received from Google APIs adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
+
+  <ul>
+    <li>We access your Gmail data solely to provide the InboxIQ service — identifying revenue opportunities in your inbox</li>
+    <li>We do not use Gmail data to serve advertisements</li>
+    <li>We do not allow humans to read your email content except when required to provide the service (e.g., investigating a bug you've reported), with your explicit permission</li>
+    <li>We do not transfer Gmail data to third parties except as necessary to provide InboxIQ (our AI classification provider, OpenAI, receives email metadata snippets for classification — see Section 5)</li>
+    <li>We do not use Gmail data to build profiles of users for purposes unrelated to InboxIQ</li>
+  </ul>
+
+  <h2>5. Third parties we share data with</h2>
+  <ul>
+    <li><strong>OpenAI</strong> — email thread metadata (sender, subject, snippet) is sent to OpenAI's API for opportunity classification. OpenAI does not use API data to train their models. <a href="https://openai.com/policies/privacy-policy" target="_blank">OpenAI Privacy Policy →</a></li>
+    <li><strong>TiDB Cloud (PingCAP)</strong> — our database provider, hosted on AWS in us-east-1. Encrypted tokens and opportunity data are stored here.</li>
+    <li><strong>Stripe</strong> — payment processing. We never store your card details. <a href="https://stripe.com/privacy" target="_blank">Stripe Privacy Policy →</a></li>
+    <li><strong>Resend</strong> — transactional email delivery (receipts, weekly digests).</li>
+    <li><strong>Railway</strong> — application hosting. Your data is processed on servers in the United States.</li>
+  </ul>
+  <p>We do not sell, rent, or share your personal data with advertisers or data brokers — ever.</p>
+
+  <h2>6. Data storage and security</h2>
+  <ul>
+    <li>OAuth access and refresh tokens are encrypted with AES-256-GCM before being written to our database</li>
+    <li>All data is transmitted over TLS (HTTPS)</li>
+    <li>Passwords are hashed with bcrypt (cost factor 12)</li>
+    <li>Database access is restricted by IP allowlist and SSL-only connections</li>
+    <li>We do not store full email body text — only metadata and AI-generated summaries</li>
+  </ul>
+
+  <h2>7. Data retention</h2>
+  <ul>
+    <li><strong>Account data:</strong> Retained until you delete your account</li>
+    <li><strong>Email tokens:</strong> Deleted immediately when you disconnect an inbox</li>
+    <li><strong>Opportunity data:</strong> Retained until you delete it or delete your account</li>
+    <li><strong>Server logs:</strong> 30 days, then automatically purged</li>
+    <li><strong>Deleted accounts:</strong> All personal data permanently purged within 30 days of account deletion</li>
+  </ul>
+
+  <h2>8. Your rights</h2>
+  <p>You have the right to:</p>
+  <ul>
+    <li><strong>Access</strong> — request a copy of all data we hold about you</li>
+    <li><strong>Correction</strong> — update inaccurate personal information</li>
+    <li><strong>Deletion</strong> — delete your account and all associated data at any time from Settings → Delete Account</li>
+    <li><strong>Disconnect</strong> — revoke inbox access at any time from Settings → Connected Inboxes. This immediately deletes your OAuth tokens and stops all scanning.</li>
+    <li><strong>Portability</strong> — export your opportunity data as CSV at any time</li>
+    <li><strong>Opt-out</strong> — unsubscribe from weekly digest emails at any time</li>
+  </ul>
+  <p>To exercise any of these rights, email <a href="mailto:privacy@reviveiqi.com">privacy@reviveiqi.com</a> or use the in-app controls in Settings.</p>
+
+  <h2>9. Children's privacy</h2>
+  <p>InboxIQ is not directed at children under 13. We do not knowingly collect personal data from children. If you believe a child has provided us with personal information, contact us at <a href="mailto:privacy@reviveiqi.com">privacy@reviveiqi.com</a> and we will delete it immediately.</p>
+
+  <h2>10. Cookies</h2>
+  <p>InboxIQ uses a single authentication cookie to keep you logged in. We do not use advertising cookies, tracking pixels, or third-party analytics cookies.</p>
+
+  <h2>11. Changes to this policy</h2>
+  <p>We will notify you of material changes by email or by a notice on the InboxIQ dashboard at least 14 days before they take effect. Continued use after the effective date constitutes acceptance.</p>
+
+  <h2>12. Contact</h2>
+  <p>Questions about this policy or your data:</p>
+  <ul>
+    <li>Email: <a href="mailto:privacy@reviveiqi.com">privacy@reviveiqi.com</a></li>
+    <li>Address: ReviveIQI, Fort Lauderdale, Florida, United States</li>
+  </ul>
+
+  <hr/>
+  <p style="font-size:13px;color:#475569">InboxIQ is a product of ReviveIQI &nbsp;·&nbsp; <a href="/terms">Terms of Service</a> &nbsp;·&nbsp; <a href="/">Back to InboxIQ</a></p>
+</div>
+
+<footer>
+  © 2026 ReviveIQI. All rights reserved.
+</footer>
+</body>
+</html>

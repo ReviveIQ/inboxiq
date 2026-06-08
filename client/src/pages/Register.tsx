@@ -65,6 +65,12 @@ export default function Register() {
           <p style={{ textAlign: "center", marginTop: "20px", fontSize: "13px", color: "#64748b" }}>
             Already have an account? <Link to="/login" style={{ color: "#60a5fa" }}>Sign in</Link>
           </p>
+          <p style={{ textAlign: "center", marginTop: "12px", fontSize: "11px", color: "#334155" }}>
+            By creating an account you agree to our{" "}
+            <a href="/terms" style={{ color: "#475569", textDecoration: "none" }}>Terms</a>
+            {" and "}
+            <a href="/privacy" style={{ color: "#475569", textDecoration: "none" }}>Privacy Policy</a>
+          </p>
         </form>
       </div>
     </div>
