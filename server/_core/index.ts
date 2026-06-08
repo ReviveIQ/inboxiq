@@ -68,3 +68,46 @@ async function start() {
 }
 
 start();
+
+// ── Process-level error alerting ─────────────────────────────────────────────
+async function sendCrashAlert(type: string, err: any) {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return;
+  const msg = err instanceof Error ? err.message : String(err);
+  const stack = err instanceof Error ? (err.stack || "").slice(0, 800) : "";
+  const time = new Date().toLocaleString("en-US", { timeZone: "America/New_York", dateStyle: "medium", timeStyle: "short" });
+  try {
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: "InboxIQ Alerts <alerts@inboxiq.reviveiqi.com>",
+        to: ["bryan@reviveiqi.com"],
+        subject: `🚨 InboxIQ ${type} — ${msg.slice(0, 60)}`,
+        html: `<div style="font-family:sans-serif;max-width:560px;padding:24px">
+          <h2 style="color:#ef4444;margin:0 0 16px">🚨 InboxIQ ${type}</h2>
+          <p><strong>Time:</strong> ${time} ET</p>
+          <p><strong>Error:</strong> <span style="color:#dc2626">${msg}</span></p>
+          ${stack ? `<pre style="font-size:12px;background:#f8fafc;padding:12px;border-radius:8px;overflow:auto">${stack}</pre>` : ""}
+          <p style="font-size:12px;color:#94a3b8">Check Railway logs: inboxiq-production</p>
+        </div>`,
+      }),
+    });
+  } catch { /* never throw in crash handler */ }
+}
+
+process.on("uncaughtException", async (err) => {
+  console.error("[InboxIQ] uncaughtException:", err);
+  await sendCrashAlert("uncaughtException", err);
+  process.exit(1);
+});
+
+process.on("unhandledRejection", async (reason) => {
+  console.error("[InboxIQ] unhandledRejection:", reason);
+  await sendCrashAlert("unhandledRejection", reason);
+});
+
+process.on("SIGTERM", () => {
+  console.log("[InboxIQ] SIGTERM received — shutting down gracefully");
+  process.exit(0);
+});
