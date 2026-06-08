@@ -25,14 +25,22 @@ app.get("/api/health", (_req, res) => res.json({ ok: true, product: "InboxIQ", t
 
 // ── Static assets + pages ─────────────────────────────────────────────────────
 const staticPath = path.join(__dirname, "../../dist/public");
-app.use(express.static(staticPath));
 
-// Legal pages
+// Public landing page at root BEFORE static middleware so it takes precedence
+app.get("/", (_req, res) => {
+  const landingPath = path.join(staticPath, "landing.html");
+  res.sendFile(landingPath, (err) => {
+    if (err) {
+      // Fallback: serve React app
+      res.sendFile(path.join(staticPath, "index.html"));
+    }
+  });
+});
+
 app.get("/privacy", (_req, res) => res.sendFile(path.join(staticPath, "privacy.html")));
 app.get("/terms", (_req, res) => res.sendFile(path.join(staticPath, "terms.html")));
 
-// Public landing page at root — no auth required (required for Google OAuth verification)
-app.get("/", (_req, res) => res.sendFile(path.join(staticPath, "landing.html")));
+app.use(express.static(staticPath, { index: false }));
 
 // React app for /login, /register, and all app routes
 app.get("*", (_req, res) => res.sendFile(path.join(staticPath, "index.html")));
