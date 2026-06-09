@@ -16,7 +16,7 @@ export default function Register() {
     try {
       const result = await register.mutateAsync({ name, email, password });
       localStorage.setItem("inboxiq_token", result.token);
-      navigate("/");
+      navigate("/app");
     } catch (err: any) {
       setError(err.message || "Registration failed");
     }

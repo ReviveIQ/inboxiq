@@ -15,7 +15,7 @@ export default function Login() {
     try {
       const result = await login.mutateAsync({ email, password });
       localStorage.setItem("inboxiq_token", result.token);
-      navigate("/");
+      navigate("/app");
     } catch (err: any) {
       setError(err.message || "Login failed");
     }

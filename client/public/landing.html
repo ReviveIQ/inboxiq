@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<script>
+// If user is already logged in, send them to the app instead of the landing page
+if (localStorage.getItem('inboxiq_token')) {
+  window.location.replace('/app');
+}
+</script>
 <title>InboxIQ — Every reply is a revenue decision</title>
 <meta name="description" content="Turn any email inbox into a revenue intelligence system. InboxIQ scans Gmail and Outlook to surface hidden opportunities, warm contacts, and follow-ups for B2B sales teams."/>
 <meta property="og:title" content="InboxIQ — Every reply is a revenue decision"/>

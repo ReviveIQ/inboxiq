@@ -23,7 +23,7 @@ export default function Home() {
   const navigate = useNavigate();
   const { data: me, isLoading } = trpc.auth.me.useQuery(undefined, {
     retry: false,
-    onError: () => { localStorage.removeItem("inboxiq_token"); navigate("/login"); },
+    onError: () => { localStorage.removeItem("inboxiq_token"); navigate('/login'); },
   });
   const { data: workspaceList = [] } = trpc.workspace.list.useQuery();
   const { data: inboxList = [], refetch: refetchInboxes } = trpc.inbox.list.useQuery();
@@ -46,7 +46,7 @@ export default function Home() {
 
   // Handle OAuth redirect params
   useEffect(() => {
-    if (!localStorage.getItem("inboxiq_token")) { navigate("/login"); return; }
+    if (!localStorage.getItem("inboxiq_token")) { navigate('/login'); return; }
     const params = new URLSearchParams(window.location.search);
     if (params.get("connected")) {
       showToast(`✓ ${params.get("connected") === "gmail" ? "Gmail" : "Outlook"} connected — scanning your inbox now`);
@@ -130,7 +130,7 @@ export default function Home() {
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <span style={{ fontSize: "13px", color: "#64748b" }}>{me?.email}</span>
           <PlanBadge plan={me?.plan || "free"} />
-          <button onClick={() => { localStorage.removeItem("inboxiq_token"); navigate("/login"); }}
+          <button onClick={() => { localStorage.removeItem("inboxiq_token"); navigate('/login'); }}
             style={{ fontSize: "12px", color: "#64748b", background: "transparent", border: "none", cursor: "pointer" }}>Sign out</button>
         </div>
       </header>
