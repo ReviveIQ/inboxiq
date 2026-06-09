@@ -4,6 +4,7 @@ import path from "path";
 
 export default defineConfig({
   plugins: [react()],
+  publicDir: "client/public", // copy landing.html, og-image.png, sitemap.xml etc to dist/public
   resolve: { alias: { "@": path.resolve(__dirname, "./client/src") } },
   server: {
     proxy: {
