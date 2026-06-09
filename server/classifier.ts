@@ -17,7 +17,7 @@ interface ClassificationResult {
   summary: string;
 }
 
-const BATCH_SIZE = 20; // threads per GPT call
+const BATCH_SIZE = 10; // threads per GPT call — smaller = faster per call, less timeout risk
 
 export async function classifyThreadBatch(threads: Array<{
   threadId: string;
@@ -35,6 +35,10 @@ export async function classifyThreadBatch(threads: Array<{
     const batch = threads.slice(i, i + BATCH_SIZE);
     const batchResults = await classifyBatch(batch, apiKey);
     batchResults.forEach((v, k) => results.set(k, v));
+    // Small delay between batches to avoid OpenAI rate limits
+    if (i + BATCH_SIZE < threads.length) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
   }
 
   return results;
@@ -148,7 +152,7 @@ Return ONLY a valid JSON array. No preamble, no markdown, no explanation.`
           }
         ]
       }),
-      signal: AbortSignal.timeout(30000),
+      signal: AbortSignal.timeout(60000),
     });
 
     if (!res.ok) {

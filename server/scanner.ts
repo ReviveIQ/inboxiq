@@ -59,11 +59,11 @@ export async function scanInbox(inboxId: number, isInitial = false): Promise<{
       : await fetchOutlookThreads(accessToken, isInitial);
 
     // Filter to threads worth classifying
-    const worthClassifying = rawThreads.filter(t =>
-      isWorthClassifying(t.subject, t.from, t.snippet)
-    );
+    const worthClassifying = rawThreads
+      .filter(t => isWorthClassifying(t.subject, t.from, t.snippet))
+      .slice(0, 200); // cap per scan — incremental scans will catch the rest
 
-    console.log(`[Scanner] inbox ${inboxId}: ${rawThreads.length} threads → ${worthClassifying.length} worth classifying`);
+    console.log(`[Scanner] inbox ${inboxId}: ${rawThreads.length} threads → ${worthClassifying.length} worth classifying (capped at 200)`);
 
     // Classify in batches
     const now = new Date();
