@@ -26,23 +26,34 @@ export async function scanInbox(inboxId: number, isInitial = false): Promise<{
   const inbox = inboxRows[0];
 
   // Create scan record
-  await db.insert(scans).values({
+  const insertResult = await db.insert(scans).values({
     inboxId,
     userId: inbox.userId,
     status: "running",
     startedAt: new Date(),
   });
 
+  // Get the scan we just inserted by finding the most recent one for this inbox
   const scanRows = await db.select().from(scans)
-    .where(and(eq(scans.inboxId, inboxId), eq(scans.status, "running")))
-    .orderBy(scans.createdAt).limit(1);
-  const scanId = scanRows[0]?.id;
+    .where(eq(scans.inboxId, inboxId))
+    .orderBy(scans.createdAt)
+    .limit(1);
+  // Get most recent — orderBy desc
+  const allScanRows = await db.select({ id: scans.id, status: scans.status })
+    .from(scans)
+    .where(eq(scans.inboxId, inboxId));
+  const scanId = allScanRows.sort((a, b) => b.id - a.id)[0]?.id;
+
+  console.log(`[Scanner] inbox ${inboxId}: scan ${scanId} starting (initial=${isInitial})`);
 
   try {
     // Get valid access token (refresh if expired)
+    console.log(`[Scanner] inbox ${inboxId}: getting access token`);
     const accessToken = await getValidAccessToken(inbox);
+    console.log(`[Scanner] inbox ${inboxId}: access token obtained`);
 
     // Fetch threads based on provider
+    console.log(`[Scanner] inbox ${inboxId}: fetching ${inbox.provider} threads`);
     const rawThreads = inbox.provider === "gmail"
       ? await fetchGmailThreads(accessToken, isInitial)
       : await fetchOutlookThreads(accessToken, isInitial);
@@ -125,9 +136,15 @@ export async function scanInbox(inboxId: number, isInitial = false): Promise<{
     return { emailsScanned: rawThreads.length, opportunitiesFound };
 
   } catch (err: any) {
-    console.error(`[Scanner] inbox ${inboxId} scan failed:`, err.message);
-    if (scanId) {
-      await db.update(scans).set({ status: "failed", completedAt: new Date() }).where(eq(scans.id, scanId));
+    console.error(`[Scanner] inbox ${inboxId} scan FAILED:`, err.message);
+    console.error(`[Scanner] stack:`, err.stack);
+    try {
+      if (scanId) {
+        const db2 = await getDb();
+        if (db2) await db2.update(scans).set({ status: "failed", completedAt: new Date() }).where(eq(scans.id, scanId));
+      }
+    } catch (dbErr: any) {
+      console.error(`[Scanner] Failed to update scan status:`, dbErr.message);
     }
     throw err;
   }
