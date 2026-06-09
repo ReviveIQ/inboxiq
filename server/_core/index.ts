@@ -24,21 +24,30 @@ registerOAuthRoutes(app);
 app.get("/api/health", (_req, res) => res.json({ ok: true, product: "InboxIQ", ts: new Date().toISOString() }));
 
 // ── Static assets + pages ─────────────────────────────────────────────────────
-const staticPath = path.join(__dirname, "../../dist/public");
+// Use process.cwd() for reliability across environments
+const staticPath = path.join(process.cwd(), "dist/public");
+console.log(`[InboxIQ] Static path: ${staticPath}`);
 
-// Public landing page at root BEFORE static middleware so it takes precedence
+// Public landing page at root — no auth required (Google OAuth verification requirement)
 app.get("/", (_req, res) => {
   const landingPath = path.join(staticPath, "landing.html");
+  console.log(`[InboxIQ] Serving landing page from: ${landingPath}`);
   res.sendFile(landingPath, (err) => {
     if (err) {
-      // Fallback: serve React app
-      res.sendFile(path.join(staticPath, "index.html"));
+      console.error(`[InboxIQ] landing.html not found at ${landingPath}, falling back to index.html`);
+      res.sendFile(path.join(staticPath, "index.html"), (err2) => {
+        if (err2) res.status(404).send("Not found");
+      });
     }
   });
 });
 
-app.get("/privacy", (_req, res) => res.sendFile(path.join(staticPath, "privacy.html")));
-app.get("/terms", (_req, res) => res.sendFile(path.join(staticPath, "terms.html")));
+app.get("/privacy", (_req, res) => res.sendFile(path.join(staticPath, "privacy.html"), (err) => {
+  if (err) res.sendFile(path.join(staticPath, "index.html"));
+}));
+app.get("/terms", (_req, res) => res.sendFile(path.join(staticPath, "terms.html"), (err) => {
+  if (err) res.sendFile(path.join(staticPath, "index.html"));
+}));
 
 app.use(express.static(staticPath, { index: false }));
 
