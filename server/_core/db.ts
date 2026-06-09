@@ -12,9 +12,30 @@ export async function getDb() {
   if (_db) return _db;
   const url = process.env.INBOXIQ_DATABASE_URL;
   if (!url) throw new Error("INBOXIQ_DATABASE_URL not set");
-  const conn = await mysql.createConnection({ uri: url, ssl: { rejectUnauthorized: true } });
-  _db = drizzle(conn, { schema, mode: "default" });
-  await initDb(conn);
+
+  // Use a pool instead of a single connection so TiDB idle timeouts don't
+  // kill the connection and cause "Can't add new command when connection is
+  // in closed state" errors after periods of inactivity
+  const pool = mysql.createPool({
+    uri: url,
+    ssl: { rejectUnauthorized: true },
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 30000, // 30s keepalive ping
+  });
+
+  _db = drizzle(pool, { schema, mode: "default" });
+
+  // Run initDb using a single connection from the pool
+  const conn = await pool.getConnection();
+  try {
+    await initDb(conn);
+  } finally {
+    conn.release();
+  }
+
   return _db;
 }
 
