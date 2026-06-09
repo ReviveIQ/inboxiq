@@ -78,7 +78,7 @@ export async function scanInbox(inboxId: number, isInitial = false): Promise<{
     let opportunitiesFound = 0;
     for (const thread of worthClassifying) {
       const c = classifications.get(thread.threadId);
-      if (!c || !c.type || c.opportunityScore < 4) continue;
+      if (!c || !c.type || c.opportunityScore < 3) continue;
 
       // Check if already stored
       const existing = await db.select({ id: opportunities.id })
