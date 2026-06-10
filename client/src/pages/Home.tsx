@@ -19,6 +19,82 @@ const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
   "Dismissed":   { bg: "rgba(100,116,139,0.1)", color: "#94a3b8" },
 };
 
+// ── Thread Panel ──────────────────────────────────────────────────────────────
+function ThreadPanel({ opportunityId, onClose }: { opportunityId: number; onClose: () => void }) {
+  const { data, isLoading, error } = trpc.inbox.getThread.useQuery({ opportunityId });
+
+  return (
+    <div style={{
+      position: "fixed", top: 0, right: 0, bottom: 0, width: "520px",
+      background: "#0f172a", borderLeft: "1px solid rgba(255,255,255,0.08)",
+      zIndex: 1000, display: "flex", flexDirection: "column",
+      boxShadow: "-8px 0 32px rgba(0,0,0,0.4)",
+    }}>
+      {/* Header */}
+      <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ margin: 0, fontSize: "14px", fontWeight: 600, color: "white", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            {data?.subject || "Loading thread..."}
+          </p>
+          <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>
+            {data?.messages?.length || 0} message{data?.messages?.length !== 1 ? "s" : ""}
+          </p>
+        </div>
+        <button onClick={onClose} style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: "20px", padding: "4px 8px", flexShrink: 0 }}>✕</button>
+      </div>
+
+      {/* Body */}
+      <div style={{ flex: 1, overflow: "auto", padding: "16px 20px" }}>
+        {isLoading && (
+          <div style={{ textAlign: "center", padding: "40px 0", color: "#64748b", fontSize: "14px" }}>
+            Loading thread...
+          </div>
+        )}
+        {error && (
+          <div style={{ textAlign: "center", padding: "40px 0", color: "#f87171", fontSize: "14px" }}>
+            Could not load thread. Try again.
+          </div>
+        )}
+        {data?.messages?.map((msg: any, i: number) => (
+          <div key={msg.messageId} style={{
+            background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+            borderRadius: "10px", marginBottom: "12px", overflow: "hidden",
+          }}>
+            {/* Message header */}
+            <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ margin: 0, fontSize: "13px", fontWeight: 600, color: "white" }}>{msg.from}</p>
+                <p style={{ margin: 0, fontSize: "11px", color: "#64748b" }}>To: {msg.to}</p>
+              </div>
+              <p style={{ margin: 0, fontSize: "11px", color: "#64748b", flexShrink: 0, marginLeft: "12px" }}>
+                {new Date(msg.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+              </p>
+            </div>
+            {/* Message body */}
+            <div style={{ padding: "14px 16px", maxHeight: "400px", overflow: "auto" }}>
+              {msg.isHtml ? (
+                <div
+                  style={{ fontSize: "13px", color: "#cbd5e1", lineHeight: 1.65 }}
+                  dangerouslySetInnerHTML={{ __html: msg.body
+                    // Sanitize inline styles to not break our dark theme
+                    .replace(/color\s*:\s*[^;'"]+/gi, "color:inherit")
+                    .replace(/background(-color)?\s*:\s*[^;'"]+/gi, "background:transparent")
+                    .replace(/font-family\s*:\s*[^;'"]+/gi, "font-family:inherit")
+                  }}
+                />
+              ) : (
+                <pre style={{ fontSize: "13px", color: "#cbd5e1", lineHeight: 1.65, whiteSpace: "pre-wrap", fontFamily: "inherit", margin: 0 }}>
+                  {msg.body || msg.snippet}
+                </pre>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const navigate = useNavigate();
   const { data: me, isLoading } = trpc.auth.me.useQuery(undefined, {
@@ -33,6 +109,7 @@ export default function Home() {
   const [showCreateWs, setShowCreateWs] = useState(false);
   const [wsName, setWsName] = useState("");
   const [scanningId, setScanningId] = useState<number | null>(null);
+  const [selectedOppId, setSelectedOppId] = useState<number | null>(null);
   const [toast, setToast] = useState("");
 
   const createWs = trpc.workspace.create.useMutation();
@@ -228,7 +305,7 @@ export default function Home() {
                   <button onClick={() => setActiveTab("opportunities")} style={{ fontSize: "12px", color: "#60a5fa", background: "transparent", border: "none", cursor: "pointer" }}>View all →</button>
                 </div>
                 {opportunities.slice(0, 5).map(opp => (
-                  <OppRow key={opp.id} opp={opp} onUpdate={handleUpdateOpp} />
+                  <OppRow key={opp.id} opp={opp} onUpdate={handleUpdateOpp} onViewThread={setSelectedOppId} />
                 ))}
               </div>
             )}
@@ -275,7 +352,7 @@ export default function Home() {
                   <span>Contact</span><span>Type</span><span>Score</span><span>Summary</span><span>Next action</span><span>Status</span>
                 </div>
                 {opportunities.map(opp => (
-                  <OppRow key={opp.id} opp={opp} onUpdate={handleUpdateOpp} showFull />
+                  <OppRow key={opp.id} opp={opp} onUpdate={handleUpdateOpp} showFull onViewThread={setSelectedOppId} />
                 ))}
               </div>
             )}
@@ -361,6 +438,14 @@ export default function Home() {
         </div>
       )}
 
+      {/* Thread Panel */}
+      {selectedOppId && (
+        <>
+          <div onClick={() => setSelectedOppId(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 999 }} />
+          <ThreadPanel opportunityId={selectedOppId} onClose={() => setSelectedOppId(null)} />
+        </>
+      )}
+
       {/* Toast */}
       {toast && (
         <div style={{ position: "fixed", bottom: "28px", right: "28px", background: "#0f172a", border: "1px solid rgba(16,185,129,0.3)", borderRadius: "10px", padding: "12px 18px", fontSize: "13px", color: "#34d399", zIndex: 999 }}>
@@ -371,13 +456,13 @@ export default function Home() {
   );
 }
 
-function OppRow({ opp, onUpdate, showFull = false }: { opp: any; onUpdate: (id: number, status: string) => void; showFull?: boolean }) {
+function OppRow({ opp, onUpdate, showFull = false, onViewThread }: { opp: any; onUpdate: (id: number, status: string) => void; showFull?: boolean; onViewThread?: (id: number) => void }) {
   const tc = TYPE_COLORS[opp.type as OppType] || { bg: "rgba(100,116,139,0.12)", color: "#94a3b8" };
   const sc = STATUS_COLORS[opp.status] || STATUS_COLORS["Active"];
   const score = Math.round(((opp.warmthScore || 5) + (opp.opportunityScore || 5)) / 2);
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: showFull ? "1fr 100px 100px 1fr 110px 80px" : "1fr 90px 80px 80px", gap: "12px", alignItems: "center", padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: "13px" }}>
+    <div style={{ display: "grid", gridTemplateColumns: showFull ? "1fr 100px 100px 1fr 110px 80px 60px" : "1fr 90px 80px 80px 60px", gap: "12px", alignItems: "center", padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: "13px" }}>
       <div>
         <div style={{ fontWeight: 500, color: "white", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{opp.contactName || opp.contactEmail || "Unknown"}</div>
         <div style={{ fontSize: "12px", color: "#64748b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{opp.contactEmail}</div>
@@ -403,6 +488,11 @@ function OppRow({ opp, onUpdate, showFull = false }: { opp: any; onUpdate: (id: 
           <option key={s} value={s} style={{ background: "#0f172a", color: "white" }}>{s}</option>
         ))}
       </select>
+      <button
+        onClick={() => onViewThread?.(opp.id)}
+        style={{ fontSize: "11px", padding: "4px 8px", borderRadius: "6px", background: "rgba(37,99,235,0.12)", color: "#60a5fa", border: "1px solid rgba(37,99,235,0.2)", cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}>
+        View
+      </button>
     </div>
   );
 }

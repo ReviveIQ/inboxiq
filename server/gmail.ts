@@ -126,11 +126,65 @@ export async function getGmailThreads(
 
 export async function getGmailThread(accessToken: string, threadId: string): Promise<any> {
   const res = await fetch(
-    `https://gmail.googleapis.com/gmail/v1/users/me/threads/${threadId}?format=metadata&metadataHeaders=From&metadataHeaders=To&metadataHeaders=Subject&metadataHeaders=Date`,
+    `https://gmail.googleapis.com/gmail/v1/users/me/threads/${threadId}?format=full`,
     { headers: { Authorization: `Bearer ${accessToken}` } }
   );
   if (!res.ok) return null;
   return res.json();
+}
+
+// Extract plain text or HTML body from a Gmail message part
+function extractBody(payload: any): { html: string; text: string } {
+  let html = "";
+  let text = "";
+
+  function decode(data: string): string {
+    try {
+      return Buffer.from(data.replace(/-/g, "+").replace(/_/g, "/"), "base64").toString("utf-8");
+    } catch { return ""; }
+  }
+
+  function traverse(part: any) {
+    if (!part) return;
+    const mime = part.mimeType || "";
+    if (mime === "text/html" && part.body?.data) html = decode(part.body.data);
+    if (mime === "text/plain" && part.body?.data && !text) text = decode(part.body.data);
+    if (part.parts) part.parts.forEach(traverse);
+  }
+
+  traverse(payload);
+  return { html, text };
+}
+
+export function parseGmailMessages(thread: any): Array<{
+  messageId: string;
+  from: string;
+  to: string;
+  subject: string;
+  date: Date;
+  snippet: string;
+  body: string;
+  isHtml: boolean;
+}> {
+  const messages = thread.messages || [];
+  return messages.map((msg: any) => {
+    const headers = msg.payload?.headers || [];
+    const getHeader = (name: string) =>
+      headers.find((h: any) => h.name.toLowerCase() === name.toLowerCase())?.value || "";
+    const dateStr = getHeader("Date");
+    const date = dateStr ? new Date(dateStr) : new Date();
+    const { html, text } = extractBody(msg.payload);
+    return {
+      messageId: msg.id,
+      from: getHeader("From"),
+      to: getHeader("To"),
+      subject: getHeader("Subject") || "(no subject)",
+      date: isNaN(date.getTime()) ? new Date() : date,
+      snippet: msg.snippet || "",
+      body: html || text || msg.snippet || "",
+      isHtml: !!html,
+    };
+  });
 }
 
 export function parseGmailThread(thread: any): {

@@ -124,6 +124,40 @@ export const opportunityRouter = router({
     };
     return { total: rows.length, active, needFollowUp, byType };
   }),
+
+  getThread: protectedProcedure
+    .input(z.object({ opportunityId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      const db = await getDb();
+
+      // Get the opportunity to find threadId and inboxId
+      const opp = await db.select().from(opportunities)
+        .where(and(eq(opportunities.id, input.opportunityId), eq(opportunities.userId, ctx.user.userId)))
+        .limit(1);
+      if (!opp.length) throw new TRPCError({ code: "NOT_FOUND" });
+
+      // Get the inbox to get the access token
+      const inbox = await db.select().from(inboxes)
+        .where(and(eq(inboxes.id, opp[0].inboxId), eq(inboxes.userId, ctx.user.userId)))
+        .limit(1);
+      if (!inbox.length) throw new TRPCError({ code: "NOT_FOUND" });
+
+      // Get a valid access token
+      const { getValidAccessToken } = await import("../scanner");
+      const accessToken = await getValidAccessToken(inbox[0] as any);
+
+      // Fetch the full thread from Gmail
+      const { getGmailThread, parseGmailMessages } = await import("../gmail");
+      const thread = await getGmailThread(accessToken, opp[0].threadId);
+      if (!thread) throw new TRPCError({ code: "NOT_FOUND", message: "Thread not found in Gmail" });
+
+      const messages = parseGmailMessages(thread);
+      return {
+        threadId: opp[0].threadId,
+        subject: opp[0].subject,
+        messages,
+      };
+    }),
 });
 
 // ── Express OAuth routes (must be outside tRPC) ───────────────────────────────
