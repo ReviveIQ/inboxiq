@@ -84,6 +84,12 @@ export async function scanInbox(inboxId: number, isInitial = false): Promise<{
       if (!c || !c.type) { skippedNull++; continue; }
       if (c.opportunityScore < 3) { skippedLowScore++; continue; }
 
+    // Normalise type — GPT occasionally returns lowercase or with whitespace
+    const VALID_TYPES = ["Revenue", "Network", "Partnership", "Reactivation"] as const;
+    const rawType = (c.type || "").trim();
+    const normType = VALID_TYPES.find(t => t.toLowerCase() === rawType.toLowerCase());
+    if (!normType) { skippedNull++; continue; }
+
       // Check if already stored
       const existing = await db.select({ id: opportunities.id })
         .from(opportunities)
@@ -111,7 +117,7 @@ export async function scanInbox(inboxId: number, isInitial = false): Promise<{
           contactName,
           contactEmail,
           subject: thread.subject,
-          type: c.type,
+          type: normType,
           warmthScore: c.warmthScore,
           opportunityScore: c.opportunityScore,
           nextAction: c.nextAction,
