@@ -73,12 +73,16 @@ export async function scanInbox(inboxId: number, isInitial = false): Promise<{
     }));
 
     const classifications = await classifyThreadBatch(threadsWithAge);
+    console.log(`[Scanner] inbox ${inboxId}: classified ${classifications.size} threads`);
 
-    // Store opportunities (only non-null types with score >= 4)
+    // Store opportunities (only non-null types with score >= 3)
     let opportunitiesFound = 0;
+    let skippedLowScore = 0;
+    let skippedNull = 0;
     for (const thread of worthClassifying) {
       const c = classifications.get(thread.threadId);
-      if (!c || !c.type || c.opportunityScore < 3) continue;
+      if (!c || !c.type) { skippedNull++; continue; }
+      if (c.opportunityScore < 3) { skippedLowScore++; continue; }
 
       // Check if already stored
       const existing = await db.select({ id: opportunities.id })
@@ -119,7 +123,7 @@ export async function scanInbox(inboxId: number, isInitial = false): Promise<{
       }
     }
 
-    // Update scan record
+    console.log(`[Scanner] inbox ${inboxId}: ${opportunitiesFound} new opportunities found, ${skippedLowScore} low score, ${skippedNull} no classification`);
     if (scanId) {
       await db.update(scans).set({
         status: "complete",

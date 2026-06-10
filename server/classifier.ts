@@ -165,6 +165,7 @@ Return ONLY a valid JSON array. No preamble, no markdown, no explanation.`
       .replace(/^```json?\s*/i, "").replace(/```\s*$/i, "").trim();
 
     const classifications = JSON.parse(raw) as (ClassificationResult & { id: string })[];
+    console.log(`[Classify] Batch returned ${classifications.length} results`);
 
     for (const c of classifications) {
       if (c.id) {
