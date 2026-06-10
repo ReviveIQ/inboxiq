@@ -51,7 +51,7 @@ async function classifyBatch(
   const results = new Map<string, ClassificationResult>();
 
   const prompt = threads.map((t, i) =>
-    `[${i}] ID:${t.threadId} | From:${t.from} | Subject:${t.subject} | Days since last touch:${t.daysSinceLastTouch} | Snippet:${t.snippet.slice(0, 200)}`
+    `[${i}] From:${t.from} | Subject:${t.subject} | Days since last touch:${t.daysSinceLastTouch} | Snippet:${t.snippet.slice(0, 200)}`
   ).join("\n");
 
   try {
@@ -144,7 +144,10 @@ SUMMARY — one sentence that tells Bryan:
 Example: "Sarah Mitchell (VP Sales, Acme SaaS) engaged warmly about pipeline challenges 18 days ago — classic ReviveIQI consulting prospect gone quiet."
 Example: "Former colleague from Renaissance Learning, now Director of RevOps at a Series B company — high-value reconnect."
 
-Return ONLY a valid JSON array. No preamble, no markdown, no explanation.`
+Return ONLY a valid JSON array where each element has this exact structure. No preamble, no markdown, no explanation:
+[{"index":0,"type":"Revenue","warmthScore":8,"opportunityScore":9,"nextAction":"Schedule Call","summary":"..."},...]
+
+The index must match the [N] number from the input. Only include threads with a non-null type (skip type:null entirely).`
           },
           {
             role: "user",
@@ -164,19 +167,21 @@ Return ONLY a valid JSON array. No preamble, no markdown, no explanation.`
     const raw = (data.choices?.[0]?.message?.content || "")
       .replace(/^```json?\s*/i, "").replace(/```\s*$/i, "").trim();
 
-    const classifications = JSON.parse(raw) as (ClassificationResult & { id: string })[];
+    const classifications = JSON.parse(raw) as (ClassificationResult & { index: number })[];
     console.log(`[Classify] Batch returned ${classifications.length} results`);
 
     for (const c of classifications) {
-      if (c.id) {
-        results.set(c.id, {
-          type: c.type,
-          warmthScore: Math.min(10, Math.max(1, c.warmthScore || 5)),
-          opportunityScore: Math.min(10, Math.max(1, c.opportunityScore || 5)),
-          nextAction: c.nextAction || "Archive",
-          summary: c.summary || "",
-        });
-      }
+      // GPT returns index number — map back to the actual threadId
+      const idx = typeof c.index === "number" ? c.index : parseInt(String(c.index));
+      const thread = threads[idx];
+      if (!thread) continue;
+      results.set(thread.threadId, {
+        type: c.type,
+        warmthScore: Math.min(10, Math.max(1, c.warmthScore || 5)),
+        opportunityScore: Math.min(10, Math.max(1, c.opportunityScore || 5)),
+        nextAction: c.nextAction || "Archive",
+        summary: c.summary || "",
+      });
     }
   } catch (err: any) {
     console.error("[Classify] Batch failed:", err.message);
