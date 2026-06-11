@@ -167,6 +167,12 @@ The index must match the [N] number from the input. Only include threads with a 
     const raw = (data.choices?.[0]?.message?.content || "")
       .replace(/^```json?\s*/i, "").replace(/```\s*$/i, "").trim();
 
+    // GPT occasionally refuses to classify sensitive content — skip batch gracefully
+    if (!raw.startsWith("[") && !raw.startsWith("{")) {
+      console.warn(`[Classify] GPT returned non-JSON response, skipping batch: ${raw.slice(0, 80)}`);
+      return results;
+    }
+
     const classifications = JSON.parse(raw) as (ClassificationResult & { index: number })[];
     console.log(`[Classify] Batch returned ${classifications.length} results`);
 
