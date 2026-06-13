@@ -24,7 +24,7 @@ function ThreadPanel({ opportunityId, onClose }: { opportunityId: number; onClos
   const { data, isLoading, error } = trpc.inbox.getThread.useQuery({ opportunityId });
 
   return (
-    <div style={{
+    <div className="iq-thread-panel" style={{
       position: "fixed", top: 0, right: 0, bottom: 0, width: "520px",
       background: "#0f172a", borderLeft: "1px solid rgba(255,255,255,0.08)",
       zIndex: 1000, display: "flex", flexDirection: "column",
@@ -195,8 +195,24 @@ export default function Home() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#080f1e", color: "#e2e8f0", fontFamily: "DM Sans, sans-serif" }}>
+      <style>{`
+        @media (max-width: 640px) {
+          .iq-header { padding: 12px 16px !important; }
+          .iq-header-email { display: none !important; }
+          .iq-tabs { padding: 0 8px !important; }
+          .iq-tab-btn { padding: 12px 10px !important; font-size: 12px !important; }
+          .iq-main { padding: 16px !important; }
+          .iq-stats-grid { grid-template-columns: 1fr 1fr !important; }
+          .iq-opp-table { display: none !important; }
+          .iq-opp-cards { display: flex !important; }
+          .iq-thread-panel { width: 100% !important; }
+          .iq-inbox-row { flex-direction: column !important; align-items: flex-start !important; gap: 10px !important; }
+          .iq-connect-btns { flex-direction: column !important; }
+        }
+      `}</style>
+
       {/* Header */}
-      <header style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", padding: "16px 32px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, background: "rgba(8,15,30,0.96)", backdropFilter: "blur(12px)", zIndex: 100 }}>
+      <header className="iq-header" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", padding: "16px 32px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, background: "rgba(8,15,30,0.96)", backdropFilter: "blur(12px)", zIndex: 100 }}>
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <GemLogo size={26} />
           <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "16px", color: "white", letterSpacing: "-0.02em" }}>
@@ -205,7 +221,7 @@ export default function Home() {
           {workspaceList[0] && <span style={{ fontSize: "13px", color: "#475569", marginLeft: "8px" }}>/ {workspaceList[0].name}</span>}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <span style={{ fontSize: "13px", color: "#64748b" }}>{me?.email}</span>
+          <span className="iq-header-email" style={{ fontSize: "13px", color: "#64748b" }}>{me?.email}</span>
           <PlanBadge plan={me?.plan || "free"} />
           <button onClick={() => { localStorage.removeItem("inboxiq_token"); navigate('/login'); }}
             style={{ fontSize: "12px", color: "#64748b", background: "transparent", border: "none", cursor: "pointer" }}>Sign out</button>
@@ -213,16 +229,16 @@ export default function Home() {
       </header>
 
       {/* Tabs */}
-      <div style={{ display: "flex", gap: "2px", padding: "0 32px", background: "#0f172a", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+      <div className="iq-tabs" style={{ display: "flex", gap: "2px", padding: "0 32px", background: "#0f172a", borderBottom: "1px solid rgba(255,255,255,0.08)", overflowX: "auto" }}>
         {(["dashboard", "opportunities", "workspace", "settings"] as const).map(tab => (
-          <button key={tab} onClick={() => setActiveTab(tab)}
-            style={{ padding: "14px 18px", fontSize: "13px", fontWeight: 500, color: activeTab === tab ? "#60a5fa" : "#64748b", background: "transparent", border: "none", borderBottom: `2px solid ${activeTab === tab ? "#60a5fa" : "transparent"}`, cursor: "pointer", fontFamily: "inherit", textTransform: "capitalize", transition: "all .15s" }}>
+          <button key={tab} onClick={() => setActiveTab(tab)} className="iq-tab-btn"
+            style={{ padding: "14px 18px", fontSize: "13px", fontWeight: 500, color: activeTab === tab ? "#60a5fa" : "#64748b", background: "transparent", border: "none", borderBottom: `2px solid ${activeTab === tab ? "#60a5fa" : "transparent"}`, cursor: "pointer", fontFamily: "inherit", textTransform: "capitalize", transition: "all .15s", whiteSpace: "nowrap", flexShrink: 0 }}>
             {tab}
           </button>
         ))}
       </div>
 
-      <div style={{ padding: "32px" }}>
+      <div className="iq-main" style={{ padding: "32px" }}>
 
         {/* DASHBOARD */}
         {activeTab === "dashboard" && (
@@ -233,16 +249,16 @@ export default function Home() {
             </h2>
 
             {/* KPI cards */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "12px", marginBottom: "28px" }}>
+            <div className="iq-stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "12px", marginBottom: "28px" }}>
               {[
                 { label: "Connected inboxes", value: inboxList.length, color: "#60a5fa" },
                 { label: "Opportunities found", value: oppStats?.total || 0, color: "#10b981" },
                 { label: "Need follow-up", value: oppStats?.needFollowUp || 0, color: "#f59e0b" },
                 { label: "Revenue signals", value: oppStats?.byType?.Revenue || 0, color: "#34d399" },
               ].map(s => (
-                <div key={s.label} style={{ background: "#0f172a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "12px", padding: "20px 24px" }}>
-                  <div style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "30px", color: s.color, letterSpacing: "-.03em", marginBottom: "4px" }}>{s.value}</div>
-                  <div style={{ fontSize: "12px", color: "#64748b" }}>{s.label}</div>
+                <div key={s.label} style={{ background: "#0f172a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "12px", padding: "16px 20px" }}>
+                  <div style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "28px", color: s.color, letterSpacing: "-.03em", marginBottom: "4px" }}>{s.value}</div>
+                  <div style={{ fontSize: "11px", color: "#64748b", lineHeight: 1.3 }}>{s.label}</div>
                 </div>
               ))}
             </div>
@@ -253,7 +269,7 @@ export default function Home() {
             {inboxList.length > 0 && (
               <div style={{ marginBottom: "16px" }}>
                 {inboxList.map(inbox => (
-                  <div key={inbox.id} style={{ background: "#0f172a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "12px", padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+                  <div key={inbox.id} className="iq-inbox-row" style={{ background: "#0f172a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "12px", padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                       <span style={{ fontSize: "20px" }}>{inbox.provider === "gmail" ? "📧" : "📨"}</span>
                       <div>
@@ -267,7 +283,7 @@ export default function Home() {
                     <button
                       onClick={() => handleScanNow(inbox.id)}
                       disabled={scanningId === inbox.id}
-                      style={{ background: "rgba(37,99,235,0.15)", border: "1px solid rgba(37,99,235,0.3)", borderRadius: "8px", padding: "8px 16px", color: "#60a5fa", fontSize: "13px", cursor: "pointer", fontFamily: "inherit" }}>
+                      style={{ background: "rgba(37,99,235,0.15)", border: "1px solid rgba(37,99,235,0.3)", borderRadius: "8px", padding: "8px 16px", color: "#60a5fa", fontSize: "13px", cursor: "pointer", fontFamily: "inherit", flexShrink: 0 }}>
                       {scanningId === inbox.id ? "Scanning..." : "Scan Now"}
                     </button>
                   </div>
@@ -285,7 +301,7 @@ export default function Home() {
                   ? "Add more inboxes to surface opportunities across your full communication history."
                   : "Connect Gmail or Outlook to scan your email history for hidden revenue opportunities, warm contacts, and follow-ups that need attention."}
               </p>
-              <div style={{ display: "flex", gap: "10px" }}>
+              <div className="iq-connect-btns" style={{ display: "flex", gap: "10px" }}>
                 <button onClick={connectGmail}
                   style={{ background: "rgba(37,99,235,0.12)", color: "#60a5fa", border: "1px solid rgba(37,99,235,0.3)", borderRadius: "8px", padding: "10px 18px", fontSize: "13px", cursor: "pointer", fontFamily: "inherit", fontWeight: 500 }}>
                   📧 Connect Gmail
@@ -347,14 +363,43 @@ export default function Home() {
                 )}
               </div>
             ) : (
-              <div style={{ background: "#0f172a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "14px", overflow: "hidden" }}>
-                <div style={{ padding: "14px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "grid", gridTemplateColumns: "1fr 100px 100px 1fr 110px 80px", gap: "12px", fontSize: "11px", fontFamily: "DM Mono, monospace", color: "#475569", textTransform: "uppercase", letterSpacing: ".06em" }}>
-                  <span>Contact</span><span>Type</span><span>Score</span><span>Summary</span><span>Next action</span><span>Status</span>
+              <>
+                {/* Desktop table */}
+                <div className="iq-opp-table" style={{ background: "#0f172a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "14px", overflow: "hidden" }}>
+                  <div style={{ padding: "14px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "grid", gridTemplateColumns: "1fr 100px 100px 1fr 110px 80px", gap: "12px", fontSize: "11px", fontFamily: "DM Mono, monospace", color: "#475569", textTransform: "uppercase", letterSpacing: ".06em" }}>
+                    <span>Contact</span><span>Type</span><span>Score</span><span>Summary</span><span>Next action</span><span>Status</span>
+                  </div>
+                  {opportunities.map(opp => (
+                    <OppRow key={opp.id} opp={opp} onUpdate={handleUpdateOpp} showFull onViewThread={setSelectedOppId} />
+                  ))}
                 </div>
-                {opportunities.map(opp => (
-                  <OppRow key={opp.id} opp={opp} onUpdate={handleUpdateOpp} showFull onViewThread={setSelectedOppId} />
-                ))}
-              </div>
+                {/* Mobile cards */}
+                <div className="iq-opp-cards" style={{ display: "none", flexDirection: "column", gap: "10px" }}>
+                  {opportunities.map(opp => {
+                    const tc = { Revenue: { bg: "rgba(16,185,129,0.12)", color: "#34d399" }, Network: { bg: "rgba(139,92,246,0.12)", color: "#a78bfa" }, Partnership: { bg: "rgba(37,99,235,0.12)", color: "#60a5fa" }, Reactivation: { bg: "rgba(245,158,11,0.1)", color: "#fbbf24" } }[opp.type as string] || { bg: "rgba(100,116,139,0.12)", color: "#94a3b8" };
+                    return (
+                      <div key={opp.id} style={{ background: "#0f172a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "12px", padding: "16px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
+                          <div>
+                            <p style={{ margin: 0, fontWeight: 600, color: "white", fontSize: "14px" }}>{opp.contactName || opp.contactEmail}</p>
+                            <p style={{ margin: "2px 0 0", fontSize: "12px", color: "#64748b" }}>{opp.contactEmail}</p>
+                          </div>
+                          <span style={{ fontSize: "11px", padding: "3px 9px", borderRadius: "6px", background: tc.bg, color: tc.color }}>{opp.type}</span>
+                        </div>
+                        {opp.summary && <p style={{ margin: "0 0 10px", fontSize: "12px", color: "#94a3b8", lineHeight: 1.5 }}>{opp.summary}</p>}
+                        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                          <select value={opp.status} onChange={e => handleUpdateOpp(opp.id, e.target.value)}
+                            style={{ flex: 1, fontSize: "12px", padding: "6px 8px", borderRadius: "6px", background: "rgba(37,99,235,0.1)", color: "#60a5fa", border: "none", cursor: "pointer" }}>
+                            {["Active","Waiting","Closed Won","Closed Lost","Dismissed"].map(s => <option key={s} value={s} style={{ background: "#0f172a" }}>{s}</option>)}
+                          </select>
+                          <button onClick={() => setSelectedOppId(opp.id)}
+                            style={{ fontSize: "12px", padding: "6px 12px", borderRadius: "6px", background: "rgba(37,99,235,0.12)", color: "#60a5fa", border: "1px solid rgba(37,99,235,0.2)", cursor: "pointer" }}>View</button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
             )}
           </div>
         )}
